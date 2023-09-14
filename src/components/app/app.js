@@ -7,8 +7,14 @@ import TaskList from '../task-list'
 export default class App extends Component {
   maxId = 1
   state = {
-    todoData: [this.createTaskItem('coffe'), this.createTaskItem('coffes'), this.createTaskItem('coffesen')],
+    todoData: [
+      this.createTaskItem('coffe', '10', '11'),
+      this.createTaskItem('coffes'),
+      this.createTaskItem('coffesen'),
+    ],
     statusFilter: 'All',
+    noCompletedTimer: 1,
+    activeTimer: false,
   }
 
   deleteItem = (id) => {
@@ -21,7 +27,20 @@ export default class App extends Component {
       }
     })
   }
-
+  updateItem = (id, min, sec) => {
+    this.setState(({ todoData }) => {
+      const newArr = [...todoData].map((item) => {
+        if (item.id === id) {
+          item.sec = sec
+          item.min = min
+        }
+        return item
+      })
+      return {
+        todoData: newArr,
+      }
+    })
+  }
   saveItem = (id, text) => {
     this.setState(({ todoData }) => {
       const newArr = [...todoData].map((item) => {
@@ -37,8 +56,8 @@ export default class App extends Component {
     })
   }
 
-  addItem = (text) => {
-    const newItem = this.createTaskItem(text)
+  addItem = (text, min, sec) => {
+    const newItem = this.createTaskItem(text, min, sec)
 
     this.setState(({ todoData }) => {
       const newArr = [...todoData, newItem]
@@ -48,7 +67,7 @@ export default class App extends Component {
     })
   }
 
-  createTaskItem(label) {
+  createTaskItem(label, min, sec) {
     return {
       label,
       editing: false,
@@ -56,6 +75,8 @@ export default class App extends Component {
       checked: false,
       id: this.maxId++,
       date: new Date(),
+      min,
+      sec,
     }
   }
 
@@ -103,10 +124,20 @@ export default class App extends Component {
 
   filterTask(arr, status) {
     if (status !== 'All') {
+      if (this.state.activeTimer === false) {
+        setInterval(() => {
+          this.setState((state) => {
+            console.log(state.noCompletedTimer)
+
+            return { noCompletedTimer: state.noCompletedTimer + 1, activeTimer: true }
+          })
+        }, 1000)
+      }
       const newArr = arr.filter((item) => {
         if (status === 'Active') {
           return !item.completed
         }
+
         return item.completed
       })
       return newArr
@@ -124,6 +155,7 @@ export default class App extends Component {
         <section className="main">
           <TaskList
             todos={renderTodo}
+            updateItem={this.updateItem}
             onDeleted={this.deleteItem}
             onChange={this.onChange}
             saveItem={this.saveItem}
