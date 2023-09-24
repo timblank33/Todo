@@ -1,18 +1,17 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 
 import NewTaskForm from '../new-task-form';
 import Footer from '../footer';
 import TaskList from '../task-list';
-
-const App = (props) => {
-  let maxId = 1;
-  const createTaskItem = (label, min, sec) => {
+import { uniqueId } from 'lodash';
+const App = () => {
+  const createTaskItem = (label, min = '00', sec = '00') => {
     return {
       label,
       editing: false,
       completed: false,
       checked: false,
-      id: maxId++,
+      id: uniqueId(),
       date: new Date(),
       min,
       sec,
@@ -90,7 +89,7 @@ const App = (props) => {
       ...todoData.slice(idx + 1),
     ];
 
-    // setTodoData(newArr);
+    setTodoData(newArr);
   };
   const clearCompleted = () => {
     const completed = todoData.filter((item) => {
@@ -116,7 +115,6 @@ const App = (props) => {
     }
     return arr;
   };
-  console.log(todoData);
   const active = todoData.filter((item) => !item.completed && !item.editing);
   const renderTodo = filterTask(todoData, statusFilter);
 

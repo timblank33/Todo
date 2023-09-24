@@ -1,17 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { func, string, number, instanceOf, bool } from 'prop-types';
+import { func, string, instanceOf, bool } from 'prop-types';
 import formatDistanceToNow from 'date-fns/formatDistanceToNow';
 
 const Task = (props) => {
-  Task.defaultProps = {
-    completed: false,
-    editing: false,
-    min: '00',
-    sec: '00',
-  };
-
   Task.propTypes = {
-    id: number.isRequired,
+    id: string.isRequired,
     label: string.isRequired,
     min: string.isRequired,
     sec: string.isRequired,
@@ -23,12 +16,13 @@ const Task = (props) => {
     onToggleCompleted: func.isRequired,
     saveItem: func.isRequired,
   };
+
   const [labelInput, setLabelInput] = useState('');
   const [play, setPlay] = useState(true);
   const [active, setActive] = useState(false);
-  const [min, setMin] = useState(props.min || '00');
-  const [sec, setSec] = useState(props.sec || '00');
-  const {
+  const [min, setMin] = useState(props.min);
+  const [sec, setSec] = useState(props.sec);
+  let {
     id,
     label,
     date,
@@ -43,7 +37,6 @@ const Task = (props) => {
 
   useEffect(() => {
     if (Number(min) === 0 && Number(sec) === 0 && !completed) {
-      // onToggleCompleted();
       setPlay(false);
     }
     const interval = setInterval(() => {
@@ -56,12 +49,13 @@ const Task = (props) => {
         }
       }
     }, 1000);
+
+    updateItem(id, min, sec, play, active);
     return () => {
       clearInterval(interval);
-      updateItem(id, min, sec, play, active);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [id, min, sec, play, active, completed]);
+  }, [min, sec, play, active, completed]);
 
   const onChange = (e) => {
     setLabelInput(e.target.value);
@@ -86,7 +80,6 @@ const Task = (props) => {
   if (editing) {
     classNames = 'editing';
   }
-
   return (
     <li className={classNames}>
       <div className="view">
